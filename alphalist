@@ -13,14 +13,15 @@ pds.set_option('display.max_columns', None)
 pds.set_option('expand_frame_repr', False)
 
 
-qlist = ['Part Number', 'Part Name', 'Technical Description']
+qlist = ['Part Number', 'Part Name (1)', 'Part Name (2)', 'Technical Description (1)', 'Technical Description (2)']
 print('Type', end=' ')
 for i in range(len(qlist)):
-    print('"%s"' %(qlist[i]), end=' / ') if i != len(qlist)-1 else print('"%s"' %(qlist[i]))
+    print('"%s"' %(qlist[i]), end=' / ') if i != len(qlist)-1 else print('"%s"\n' %(qlist[i]))
 print('press "ENTER" if none, type "exit" to end the session')
+print('type separately at "Part Name (1)" and "Part Name (2)" (ex: Part Name (1) - pin / Part Name (2) - roll)')
 t.sleep(1)
 
-inputdata = ['', '', '']
+inputdata = ['', '', '', '', '']
 tempstr, lengcounter = '', 0
                      
 while tempstr.lower() != 'exit':
@@ -33,4 +34,6 @@ while tempstr.lower() != 'exit':
     if tempstr.lower() != 'exit' and lengcounter != 0:
         print(aldata[(aldata[aldata.columns.to_list()[0]].str.contains(inputdata[0])) & \
                      (aldata[aldata.columns.to_list()[1]].str.contains(inputdata[1])) & \
-                     (aldata[aldata.columns.to_list()[-1]].str.contains(inputdata[2]))])
+                     (aldata[aldata.columns.to_list()[1]].str.contains(inputdata[2])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(inputdata[3])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(inputdata[4]))])
