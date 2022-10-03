@@ -1,0 +1,36 @@
+import pandas as pds
+import time as t
+import os
+
+if 'alphalist.csv' not in os.listdir('.'):
+    aldata = pds.read_excel('alphalist.xlsx')
+    aldata.to_csv('alphalist.csv', index=False)
+else:
+    aldata = pds.read_csv('alphalist.csv')
+
+pds.set_option('display.max_rows', None)
+pds.set_option('display.max_columns', None)
+pds.set_option('expand_frame_repr', False)
+
+
+qlist = ['Part Number', 'Part Name', 'Technical Description']
+print('Type', end=' ')
+for i in range(len(qlist)):
+    print('"%s"' %(qlist[i]), end=' / ') if i != len(qlist)-1 else print('"%s"' %(qlist[i]))
+print('press "ENTER" if none, type "exit" to end the session')
+t.sleep(1)
+
+inputdata = ['', '', '']
+tempstr, lengcounter = '', 0
+                     
+while tempstr.lower() != 'exit':
+    for i in range(len(qlist)):
+        tempstr = str(input(qlist[i] + '?  - ')).upper()
+        if tempstr.lower() == 'exit':
+            break
+        inputdata[i] = tempstr
+        lengcounter += len(tempstr)
+    if tempstr.lower() != 'exit' and lengcounter != 0:
+        print(aldata[(aldata[aldata.columns.to_list()[0]].str.contains(inputdata[0])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(inputdata[1])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(inputdata[2]))])
