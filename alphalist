@@ -1,39 +1,58 @@
 import pandas as pds
-import time as t
 import os
 
+# create alphalist.csv if not existed and load the file if existed
 if 'alphalist.csv' not in os.listdir('.'):
     aldata = pds.read_excel('alphalist.xlsx')
     aldata.to_csv('alphalist.csv', index=False)
 else:
     aldata = pds.read_csv('alphalist.csv')
 
+# pandas option change to display without any limitation
 pds.set_option('display.max_rows', None)
 pds.set_option('display.max_columns', None)
 pds.set_option('expand_frame_repr', False)
 
 
-qlist = ['Part Number', 'Part Name (1)', 'Part Name (2)', 'Technical Description (1)', 'Technical Description (2)']
+# initialize and introduce how to use
+tempstr, lengcounter = '', 0
+
+qlist = ['Part Number', 'Part Name', 'Technical Description']
 print('Type', end=' ')
 for i in range(len(qlist)):
     print('"%s"' %(qlist[i]), end=' / ') if i != len(qlist)-1 else print('"%s"\n' %(qlist[i]))
-print('press "ENTER" if none, type "exit" to end the session')
-print('type separately at "Part Name (1)" and "Part Name (2)" (ex: Part Name (1) - pin / Part Name (2) - roll)')
-t.sleep(1)
+print('press "ENTER" if nothing to type, "exit" to end the session')
 
-inputdata = ['', '', '', '', '']
-tempstr, lengcounter = '', 0
-                     
+
+# search                     
 while tempstr.lower() != 'exit':
     for i in range(len(qlist)):
         tempstr = str(input(qlist[i] + '?  - ')).upper()
         if tempstr.lower() == 'exit':
             break
-        inputdata[i] = tempstr
+
+        globals()['qlist' + str(i)] = ['', '', '', '', '']
+        if i == 0:
+            qlist0 = tempstr
+        elif i != 0 and ' ' in tempstr:
+            # save maximum 5 keywords to search
+            j = 0
+            for keyword in tempstr.split(' '):
+                globals()['qlist' + str(i)][j] = keyword
+                j += 1
+        
         lengcounter += len(tempstr)
     if tempstr.lower() != 'exit' and lengcounter != 0:
-        print(aldata[(aldata[aldata.columns.to_list()[0]].str.contains(inputdata[0])) & \
-                     (aldata[aldata.columns.to_list()[1]].str.contains(inputdata[1])) & \
-                     (aldata[aldata.columns.to_list()[1]].str.contains(inputdata[2])) & \
-                     (aldata[aldata.columns.to_list()[-1]].str.contains(inputdata[3])) & \
-                     (aldata[aldata.columns.to_list()[-1]].str.contains(inputdata[4]))])
+        print(aldata[(aldata[aldata.columns.to_list()[0]].str.contains(qlist0)) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[0])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[1])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[2])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[3])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[4])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[0])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[1])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[2])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[3])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[4]))])
+    elif lengcounter == 0:
+        print('NO RESULT')
