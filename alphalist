@@ -14,18 +14,17 @@ pds.set_option('display.max_columns', None)
 pds.set_option('expand_frame_repr', False)
 
 
-# initialize and introduce how to use
-tempstr, lengcounter = '', 0
-
 qlist = ['Part Number', 'Part Name', 'Technical Description']
 print('Type', end=' ')
 for i in range(len(qlist)):
     print('"%s"' %(qlist[i]), end=' / ') if i != len(qlist)-1 else print('"%s"\n' %(qlist[i]))
-print('press "ENTER" if nothing to type, "exit" to end the session')
+print('"ENTER" to skip, type "exit" to end the session')
 
 
-# search                     
+# search
+tempstr = ''
 while tempstr.lower() != 'exit':
+    lengcounter = 0
     for i in range(len(qlist)):
         tempstr = str(input(qlist[i] + '?  - ')).upper()
         if tempstr.lower() == 'exit':
@@ -43,19 +42,17 @@ while tempstr.lower() != 'exit':
         
         lengcounter += len(tempstr)
         
-    # exe file print everything on the list when there's no input but jupyter works fine - to avoid the situation
-    if tempstr.lower() != 'exit':
-        if lengcounter == 0:
-            print('+++ NO RESULT +++')
-        elif tempstr.lower() != 'exit' and lengcounter != 0:
-            print(aldata[(aldata[aldata.columns.to_list()[0]].str.contains(qlist0)) & \
-                         (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[0])) & \
-                         (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[1])) & \
-                         (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[2])) & \
-                         (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[3])) & \
-                         (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[4])) & \
-                         (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[0])) & \
-                         (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[1])) & \
-                         (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[2])) & \
-                         (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[3])) & \
-                         (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[4]))])
+    if tempstr.lower() != 'exit' and lengcounter != 0:
+        print(aldata[(aldata[aldata.columns.to_list()[0]].str.contains(qlist0)) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[0])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[1])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[2])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[3])) & \
+                     (aldata[aldata.columns.to_list()[1]].str.contains(qlist1[4])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[0])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[1])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[2])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[3])) & \
+                     (aldata[aldata.columns.to_list()[-1]].str.contains(qlist2[4]))])
+    elif lengcounter == 0:
+        print('+++ NO RESULT +++')
