@@ -2,11 +2,11 @@ import pandas as pds
 import os
 
 # create alphalist.csv if not existed and load the file if existed
-if 'alphalist.csv' not in os.listdir('.'):
-    aldata = pds.read_excel('alphalist.xlsx')
-    aldata.to_csv('alphalist.csv', index=False)
+if '[JARVIS] ALPHA LIST_alphalist.csv' not in os.listdir('.'):
+    aldata = pds.read_excel('[JARVIS] ALPHA LIST_alphalist.xlsx')
+    aldata.to_csv('[JARVIS] ALPHA LIST_alphalist.csv', index=False)
 else:
-    aldata = pds.read_csv('alphalist.csv')
+    aldata = pds.read_csv('[JARVIS] ALPHA LIST_alphalist.csv')
 
 # pandas option change to display without any limitation
 pds.set_option('display.max_rows', None)
@@ -30,16 +30,18 @@ while tempstr.lower() != 'exit':
         if tempstr.lower() == 'exit':
             break
 
-        globals()['qlist' + str(i)] = ['', '', '', '', '']
         if i == 0:
             qlist0 = tempstr
-        elif i != 0:
+        else:
+            globals()['qlist' + str(i)] = []
             if ' ' in tempstr:
             # save maximum 5 keywords to search
                 for keyword in tempstr.split(' '):
                     globals()['qlist' + str(i)].append(keyword)
             else:
-                globals()['qlist' + str(i)][0] = tempstr
+                globals()['qlist' + str(i)].append(tempstr)
+            for filling in range(len(globals()['qlist' + str(i)]), 5):
+                globals()['qlist' + str(i)].append('')
         
         lengcounter += len(tempstr)
         
