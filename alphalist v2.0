@@ -1,39 +1,51 @@
 import csv
-with open('alphalist.csv', newline='') as rawdata:
-    tempdata = csv.reader(rawdata, delimiter=',')
-    aldata = list(tempdata)
-    rawdata.close()
+from prettytable import PrettyTable
 
-tempinput = ''
-qlist = [0, 1, -1]
-print('Type', end=' ')
-for i in range(len(qlist)):
-    print('"%s"' %(aldata[0][qlist[i]]), end=' / ') if i != len(qlist)-1 else print('"%s"' %(aldata[0][qlist[i]]))
-print('<ENTER> to skip, type "exit" to end the session\n')
+try:
+    # preparation and checking the csv file
+    with open('[JARVIS] ALPHALIST_alphalist.csv', newline='') as rawdata:
+        tempdata = csv.reader(rawdata, delimiter=',')
+        aldata = list(tempdata)
+        rawdata.close()
 
-while tempinput.lower() != 'exit':
-    inputlist = list('' for i in range(3))
-    lencntr = 0
+        
+    tempinput = ''
+    qlist = [0, 1, -1]
+    print('Type', end=' ')
     for i in range(len(qlist)):
-        tempinput = str(input(aldata[0][qlist[i]] + '?  - ')).lower()
-        if tempinput == 'exit':
-            break
-        else:
-            if i == 0:
-                inputlist[i] = [tempinput.replace(' ', '')]
+        print('"%s"' %(aldata[0][qlist[i]]), end=' / ') if i != len(qlist)-1 else print('"%s"' %(aldata[0][qlist[i]]))
+    print('<ENTER> to skip, type "exit" to end the session\n')
+    
+    
+    while tempinput.lower() != 'exit':
+        pttbl = PrettyTable()
+        inputlist = list('' for i in range(3))
+        lencntr = 0
+        for i in range(len(qlist)):
+            tempinput = str(input(aldata[0][qlist[i]] + '?  - ')).lower()
+            if tempinput == 'exit':
+                break
             else:
-                if ' ' in tempinput:
-                    inputlist[i] = tempinput.split(' ')
+                if i == 0:
+                    inputlist[i] = [tempinput.replace(' ', '')]
                 else:
-                    inputlist[i] = [tempinput]
-        lencntr += 1 if len(tempinput) != 0 else 0
-    if tempinput != 'exit':
-        if lencntr != 0:
-            print(aldata[0])
-            for i in range(1, len(aldata)):
-                if all(pno in aldata[i][0] for pno in inputlist[0]) and \
-                all(pn in aldata[i][1].lower() for pn in inputlist[1]) and \
-                all(td in aldata[i][-1].lower() for td in inputlist[2]):
-                    print(aldata[i])
-        else:
-            print('+++ NO RESULT +++')
+                    if ' ' in tempinput:
+                        inputlist[i] = tempinput.split(' ')
+                    else:
+                        inputlist[i] = [tempinput]
+            lencntr += 1 if len(tempinput) != 0 else 0
+        if tempinput != 'exit':
+            if lencntr != 0:
+                pttbl.field_names = aldata[0]
+                for i in range(1, len(aldata)):
+                    if all(pno in aldata[i][0] for pno in inputlist[0]) and \
+                    all(pn in aldata[i][1].lower() for pn in inputlist[1]) and \
+                    all(td in aldata[i][-1].lower() for td in inputlist[2]):
+                        pttbl.add_row(aldata[i])
+                print(pttbl)
+            else:
+                print('+++ NO RESULT +++')
+
+except:
+    # if the progam can't find the file
+    print('YOU MUST LOCATE "alphalist.csv" IN THE SAME FOLDER')
