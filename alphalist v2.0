@@ -2,13 +2,13 @@ import csv
 from prettytable import PrettyTable
 
 try:
-    # preparation and checking the csv file
-    with open('alphalist.csv', newline='') as rawdata:
+    #csv file load and turn into a list format
+    with open('[JARVIS] ALPHALIST_alphalist.csv', newline='') as rawdata:
         tempdata = csv.reader(rawdata, delimiter=',')
         aldata = list(tempdata)
         rawdata.close()
-
-
+        
+    #introduction
     tempinput = ''
     colname = aldata[0].copy()
     del colname[2:6]
@@ -17,12 +17,13 @@ try:
     for i in colname:
         print('"%s"' %(i), end=' / ') if colname.index(i) != len(colname)-1 else print('"%s"' %(i))
     print('<ENTER> to skip, type "exit" to end the session\n')
-
-
+    
+    #type and search
     while tempinput.lower() != 'exit':
         pttbl = PrettyTable()
         inputlist = list('' for i in range(len(colname)))
         lencntr = 0
+        #keyword type and arrange
         for i in range(len(colname)):
             tempinput = str(input(colname[i] + '?  - ')).lower()
             if tempinput == 'exit':
@@ -36,16 +37,25 @@ try:
                     else:
                         inputlist[i] = [tempinput]
             lencntr += 1 if len(tempinput) != 0 else 0
+            
+        #search start
         if tempinput != 'exit':
             if lencntr != 0:
                 pttbl.field_names = aldata[0]
-                for i in range(1, len(aldata)):
-                    if all(pno in aldata[i][0] for pno in inputlist[0]) and \
-                    all(pn in aldata[i][1].lower() for pn in inputlist[1]) and \
-                    all(td in aldata[i][-1].lower() for td in inputlist[2]) and \
-                    (all(td not in aldata[i][-1].lower() for td in inputlist[3]) and \
-                     all(td not in aldata[i][1].lower() for td in inputlist[3])):
-                        pttbl.add_row(aldata[i])
+                if inputlist[3] == ['']:
+                    for i in range(1, len(aldata)):
+                        if all(pno in aldata[i][0] for pno in inputlist[0]) and \
+                        all(pn in aldata[i][1].lower() for pn in inputlist[1]) and \
+                        all(td in aldata[i][-1].lower() for td in inputlist[2]):
+                            pttbl.add_row(aldata[i])
+                else:
+                    for i in range(1, len(aldata)):
+                        if all(pno in aldata[i][0] for pno in inputlist[0]) and \
+                        all(pn in aldata[i][1].lower() for pn in inputlist[1]) and \
+                        all(td in aldata[i][-1].lower() for td in inputlist[2]) and \
+                        (all(td not in aldata[i][-1].lower() for td in inputlist[3]) and \
+                         all(td not in aldata[i][1].lower() for td in inputlist[3])):
+                            pttbl.add_row(aldata[i])
                 print(pttbl)
             else:
                 print('+++ NO RESULT +++')
