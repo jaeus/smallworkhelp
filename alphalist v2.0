@@ -3,26 +3,28 @@ from prettytable import PrettyTable
 
 try:
     # preparation and checking the csv file
-    with open('[JARVIS] ALPHALIST_alphalist.csv', newline='') as rawdata:
+    with open('alphalist.csv', newline='') as rawdata:
         tempdata = csv.reader(rawdata, delimiter=',')
         aldata = list(tempdata)
         rawdata.close()
 
-        
+
     tempinput = ''
-    qlist = [0, 1, -1]
+    colname = aldata[0].copy()
+    del colname[2:6]
+    colname.append('Keyword Exception')
     print('Type', end=' ')
-    for i in range(len(qlist)):
-        print('"%s"' %(aldata[0][qlist[i]]), end=' / ') if i != len(qlist)-1 else print('"%s"' %(aldata[0][qlist[i]]))
+    for i in colname:
+        print('"%s"' %(i), end=' / ') if colname.index(i) != len(colname)-1 else print('"%s"' %(i))
     print('<ENTER> to skip, type "exit" to end the session\n')
-    
-    
+
+
     while tempinput.lower() != 'exit':
         pttbl = PrettyTable()
-        inputlist = list('' for i in range(3))
+        inputlist = list('' for i in range(len(colname)))
         lencntr = 0
-        for i in range(len(qlist)):
-            tempinput = str(input(aldata[0][qlist[i]] + '?  - ')).lower()
+        for i in range(len(colname)):
+            tempinput = str(input(colname[i] + '?  - ')).lower()
             if tempinput == 'exit':
                 break
             else:
@@ -40,7 +42,9 @@ try:
                 for i in range(1, len(aldata)):
                     if all(pno in aldata[i][0] for pno in inputlist[0]) and \
                     all(pn in aldata[i][1].lower() for pn in inputlist[1]) and \
-                    all(td in aldata[i][-1].lower() for td in inputlist[2]):
+                    all(td in aldata[i][-1].lower() for td in inputlist[2]) and \
+                    (all(td not in aldata[i][-1].lower() for td in inputlist[3]) and \
+                     all(td not in aldata[i][1].lower() for td in inputlist[3])):
                         pttbl.add_row(aldata[i])
                 print(pttbl)
             else:
