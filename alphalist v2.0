@@ -3,7 +3,7 @@ from prettytable import PrettyTable
 
 try:
     #csv file load and turn into a list format
-    with open('[JARVIS] ALPHALIST_alphalist.csv', newline='') as rawdata:
+    with open('alphalist.csv', newline='') as rawdata:
         tempdata = csv.reader(rawdata, delimiter=',')
         aldata = list(tempdata)
         rawdata.close()
@@ -46,15 +46,15 @@ try:
                     for i in range(1, len(aldata)):
                         if all(pno in aldata[i][0] for pno in inputlist[0]) and \
                         all(pn in aldata[i][1].lower() for pn in inputlist[1]) and \
-                        all(td in aldata[i][-1].lower() for td in inputlist[2]):
+                        all(td in aldata[i][-1].lower().replace(' ', '') for td in inputlist[2]):
                             pttbl.add_row(aldata[i])
                 else:
                     for i in range(1, len(aldata)):
                         if all(pno in aldata[i][0] for pno in inputlist[0]) and \
                         all(pn in aldata[i][1].lower() for pn in inputlist[1]) and \
-                        all(td in aldata[i][-1].lower() for td in inputlist[2]) and \
-                        (all(td not in aldata[i][-1].lower() for td in inputlist[3]) and \
-                         all(td not in aldata[i][1].lower() for td in inputlist[3])):
+                        all(td in aldata[i][-1].lower().replace(' ', '') for td in inputlist[2]) and \
+                        (all(td not in aldata[i][-1].lower().replace(' ', '') for td in inputlist[3]) and \
+                         all(td not in aldata[i][1].lower().replace(' ', '') for td in inputlist[3])):
                             pttbl.add_row(aldata[i])
                 print(pttbl)
             else:
