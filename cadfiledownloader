@@ -1,0 +1,16 @@
+from bs4 import BeautifulSoup as bs
+import requests as rq
+
+url = 'https://www.hncgroup.dk/produkter/rustfrie-cylindre/3d-filer/'
+pagehtmldata = bs(rq.get(url).content, 'html.parser')
+
+filelist = []
+fnlist = []
+for i in pagehtmldata.find_all('span', {'class': 'csc-uploads-fileName'}):
+    if "href=" in str(i):
+        filelist.append('https://www.hncgroup.dk' + (str(i).split('href="')[1].split('" target')[0]))
+    fnlist.append(i.get_text().replace(' ', '_'))
+    
+for i in range(len(filelist)):
+    r = requests.get(filelist[i], allow_redirects=True)
+    open(fnlist[i], 'wb').write(r.content)
