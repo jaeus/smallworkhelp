@@ -1,71 +1,77 @@
 import csv
 import os
+import time as t
 from prettytable import PrettyTable
 
-# Punching BOM pns - only for two
-bomdata = []
 while True:
-    asmpnlist = []
-    asmpnlist.append(input("Type 1st assembly's p/n: "))
-    if asmpnlist[0] in str(os.listdir('.')):
+    # Punching BOM pns - only for two
+    bomdata = []
+    print('TYPE "EXIT" TO TERMINATE THE PROGRAM')
+    t.sleep(0.5)
+    while True:
+        asmpnlist = []
+        asmpnlist.append(input("Type 1st assembly's p/n: ").lower())
+        if (asmpnlist[0] in str(os.listdir('.')) and len(asmpnlist[0]) >= 7) or asmpnlist[0] == 'exit':
+            break
+        else:
+            print('*** FILE NOT EXISTS, TYPE AGAIN ***')
+    while True and asmpnlist[0] != 'exit':
+        asmpnlist.append(input("Type 2nd assembly's p/n: ").lower())
+        if (asmpnlist[1] in str(os.listdir('.')) and len(asmpnlist[1]) >= 7) or asmpnlist[1] == 'exit':
+            break
+        else:
+            asmpnlist.pop(1)
+            print('*** FILE NOT EXISTS, TYPE AGAIN ***')
+    if 'exit' in asmpnlist:
         break
-    else:
-        print('*** FILE NOT EXISTS, TYPE AGAIN ***')
-while True:
-    asmpnlist.append(input("Type 2nd assembly's p/n: "))
-    if asmpnlist[1] in str(os.listdir('.')):
-        break
-    else:
-        asmpnlist.pop(1)
-        print('*** FILE NOT EXISTS, TYPE AGAIN ***')
-        
 
-# BOM preparation
-for asmpn in asmpnlist:
-    for filename in os.listdir('.'):
-        if asmpn in str(filename):
-            with open(filename, newline='') as rawdata:
-                tempdata = csv.reader(rawdata, delimiter=',')
-                bomtemp = list(tempdata)
-                rawdata.close()
-            bomtemp[0][0] = bomtemp[0][0].split('"')[1]
-            # remove the p/n itself from the BOM structure
-            for eachrow in bomtemp:
-                bomtemp.pop(bomtemp.index(eachrow)) if asmpn in eachrow[1] else ''
 
-            eachbom = []
-            for colno in [1,3]:
-                eachcol = []
+    # BOM preparation
+    for asmpn in asmpnlist:
+        for filename in os.listdir('.'):
+            if asmpn in str(filename) and '.csv' in str(filename):
+                with open(filename, newline='') as rawdata:
+                    tempdata = csv.reader(rawdata, delimiter=',')
+                    bomtemp = list(tempdata)
+                    rawdata.close()
+                bomtemp[0][0] = bomtemp[0][0].split('"')[1]
+                # remove the p/n itself from the BOM structure
                 for eachrow in bomtemp:
-                    if 'skel' in eachrow[1] or eachrow[0] != str(1):
-                        continue
-                    # add items if level is only 1
-                    eachcol.append(eachrow[colno].split('.')[0]) if colno == 1 else eachcol.append(eachrow[colno])
-                    
-                eachbom.append(eachcol)
-            bomdata.append(eachbom)
-            
-# rusult displaying preparation (for more than 2 BOM compare)
-titlelist = []
-for idx in range(len(asmpnlist)):
-    titlelist.append('target BOM') if idx == 0 else titlelist.append('cmprd BOM_' + str(idx))
-    titlelist.append('target BOM P/N') if idx == 0 else titlelist.append('cmprd BOM P/N_' + str(idx))
-    titlelist.append('target BOM Qty') if idx == 0 else titlelist.append('cmprd BOM Qty_' + str(idx))
-pttbl = PrettyTable()
-pttbl.field_names = titlelist
+                    bomtemp.pop(bomtemp.index(eachrow)) if asmpn in eachrow[1] else ''
 
-for asmpn in range(len(asmpnlist)):
-    compared = list(range(len(asmpnlist)))
-    compared.remove(asmpn)
-    for pns in bomdata[asmpn][0]:
-        for cmprd in compared:
-            if pns in bomdata[cmprd][0] and \
-            bomdata[asmpn][1][bomdata[asmpn][0].index(pns)] != bomdata[cmprd][1][bomdata[cmprd][0].index(pns)]:
-                result = [asmpnlist[asmpn], pns, bomdata[asmpn][1][bomdata[asmpn][0].index(pns)],
-                          asmpnlist[cmprd], pns, bomdata[cmprd][1][bomdata[cmprd][0].index(pns)]]
-                pttbl.add_row(result)
-                continue
-            if pns not in bomdata[cmprd][0]:
-                pttbl.add_row([asmpnlist[asmpn], pns, bomdata[asmpn][1][bomdata[asmpn][0].index(pns)],
-                               asmpnlist[cmprd], 'N/A', 'N/A'])
-print(pttbl)
+                eachbom = []
+                for colno in [1,3]:
+                    eachcol = []
+                    for eachrow in bomtemp:
+                        if 'skel' in eachrow[1] or eachrow[0] != str(1):
+                            continue
+                        # add items if level is only 1
+                        eachcol.append(eachrow[colno].split('.')[0]) if colno == 1 else eachcol.append(eachrow[colno])
+
+                    eachbom.append(eachcol)
+                bomdata.append(eachbom)
+
+    # rusult displaying preparation (for more than 2 BOM compare)
+    titlelist = []
+    for idx in range(len(asmpnlist)):
+        titlelist.append('target BOM') if idx == 0 else titlelist.append('cmprd BOM_' + str(idx))
+        titlelist.append('target BOM P/N') if idx == 0 else titlelist.append('cmprd BOM P/N_' + str(idx))
+        titlelist.append('target BOM Qty') if idx == 0 else titlelist.append('cmprd BOM Qty_' + str(idx))
+    pttbl = PrettyTable()
+    pttbl.field_names = titlelist
+
+    for asmpn in range(len(asmpnlist)):
+        compared = list(range(len(asmpnlist)))
+        compared.remove(asmpn)
+        for pns in bomdata[asmpn][0]:
+            for cmprd in compared:
+                if pns in bomdata[cmprd][0] and \
+                bomdata[asmpn][1][bomdata[asmpn][0].index(pns)] != bomdata[cmprd][1][bomdata[cmprd][0].index(pns)]:
+                    result = [asmpnlist[asmpn], pns, bomdata[asmpn][1][bomdata[asmpn][0].index(pns)],
+                              asmpnlist[cmprd], pns, bomdata[cmprd][1][bomdata[cmprd][0].index(pns)]]
+                    pttbl.add_row(result)
+                    continue
+                if pns not in bomdata[cmprd][0]:
+                    pttbl.add_row([asmpnlist[asmpn], pns, bomdata[asmpn][1][bomdata[asmpn][0].index(pns)],
+                                   asmpnlist[cmprd], 'N/A', 'N/A'])
+    print(pttbl, '\n')
