@@ -9,7 +9,7 @@ root.withdraw()
 
 # rusult displaying preparation
 pttbl = PrettyTable()
-pttbl.field_names = ['CODE', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
+pttbl.field_names = ['CODE', '(EMPTY_1)', 'OLD PARENT NO.', '(EMPTY_2)', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
 
 # loading BOMs
 bomdata = []
@@ -44,15 +44,15 @@ for titletext in ['OLD BOM', 'NEW BOM']:
 if len(bomdata) == 2 and bomdata[0][0][0] != bomdata[1][0][0]:
     print("BOM NOT MATCHING")
 elif len(root.fn) != 0:
-    pttbl.add_row(['', bomdata[0][0][0], '', ''])
+    pttbl.add_row(['', '', '', '', bomdata[0][0][0], '', ''])
     for pn in bomdata[0][0][1:]:
         if pn not in bomdata[1][0][1:]:
-            pttbl.add_row(['D', '', pn, bomdata[0][1][bomdata[0][0].index(pn)]])
+            pttbl.add_row(['D', '', '', '', '', pn, bomdata[0][1][bomdata[0][0].index(pn)]])
         elif bomdata[0][1][bomdata[0][0].index(pn)] != bomdata[1][1][bomdata[1][0].index(pn)]:
-            pttbl.add_row(['C', '', pn, bomdata[1][1][bomdata[1][0].index(pn)]])
+            pttbl.add_row(['C', '', '', '', '', pn, bomdata[1][1][bomdata[1][0].index(pn)]])
     for pn in bomdata[1][0][1:]:
         if pn not in bomdata[0][0][1:]:
-            pttbl.add_row(['A', '', pn, bomdata[1][1][bomdata[1][0].index(pn)]])
+            pttbl.add_row(['A', '', '', '', '', pn, bomdata[1][1][bomdata[1][0].index(pn)]])
     print(pttbl)
     with open('Product Structure for ' + bomdata[0][0][0] + '.csv', 'w', newline='') as output:
         output.write(pttbl.get_csv_string())
