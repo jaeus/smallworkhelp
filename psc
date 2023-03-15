@@ -8,20 +8,8 @@ from prettytable import PrettyTable
 root = Tk()
 root.withdraw()
 
-# rusult displaying preparation
-pttbl = PrettyTable()
-pttbl.field_names = ['CODE', ' ', 'OLD PARENT NO.', '  ', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
-
-def adddt(func_wb, func_dtset, func_rowno, func_pttbl):
-    for func_colno in range(len(func_dtset)):
-        func_wb.write(func_rowno, func_colno, func_dtset[func_colno])
-    func_pttbl.add_row(func_dtset)
-    func_rowno += 1
-    return(func_wb, func_rowno, func_pttbl)
-
-
 # loading BOMs
-rowno, bomdata = 0, []
+bomdata = []
 for titletext in ['OLD BOM', 'NEW BOM']:
     root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT THE ' + titletext))
     if len(root.fn) == 0:
@@ -53,30 +41,37 @@ for titletext in ['OLD BOM', 'NEW BOM']:
 if len(bomdata) == 2 and bomdata[0][0][0] != bomdata[1][0][0]:
     print("BOM NOT MATCHING")
 elif len(root.fn) != 0:
-    psworkbook = xw.Workbook('Product Structure for ' + bomdata[0][0][0] + '.xlsx')
-    pssheet = psworkbook.add_worksheet()
-    colname = ['CODE', ' ', 'OLD PARENT NO.', '  ', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
-    for colno in range(len(colname)):
-        pssheet.write(rowno, colno, colname[colno])
-    rowno += 1
-    
-    dtset = ['', '', '', '', bomdata[0][0][0], '', '']
-    pssheet, rowno, pttbl = adddt(pssheet, dtset, rowno, pttbl)
+    dtset = []
     for pn in bomdata[0][0][1:]:
         if pn not in bomdata[1][0][1:]:
-            dtset = ['D', '', '', '', '', pn, bomdata[0][1][bomdata[0][0].index(pn)]]
-            pssheet, rowno, pttbl = adddt(pssheet, dtset, rowno, pttbl)
+            dtset.append(['D', '', '', '', '', pn, bomdata[0][1][bomdata[0][0].index(pn)]])
         elif bomdata[0][1][bomdata[0][0].index(pn)] != bomdata[1][1][bomdata[1][0].index(pn)]:
-            dtset = ['C', '', '', '', '', pn, bomdata[1][1][bomdata[1][0].index(pn)]]
-            pssheet, rowno, pttbl = adddt(pssheet, dtset, rowno, pttbl)
-
+            dtset.append(['C', '', '', '', '', pn, bomdata[1][1][bomdata[1][0].index(pn)]])
     for pn in bomdata[1][0][1:]:
         if pn not in bomdata[0][0][1:]:
-            dtset = ['A', '', '', '', '', pn, bomdata[1][1][bomdata[1][0].index(pn)]]
-            pssheet, rowno, pttbl = adddt(pssheet, dtset, rowno, pttbl)
-        
+            dtset.append(['A', '', '', '', '', pn, bomdata[1][1][bomdata[1][0].index(pn)]])
+    for mbr in dtset:
+        dtset.sort(key=lambda m: m[0])
+    dtset.insert(0, ['', '', '', '', bomdata[0][0][0], '', ''])        
+    
+    # rusult displaying and saving preparation
+    colname = ['CODE', ' ', 'OLD PARENT NO.', '  ', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
+    pttbl = PrettyTable()
+    pttbl.field_names = colname
+    psworkbook = xw.Workbook('Product Structure for ' + bomdata[0][0][0] + '.xlsx')
+    pssheet = psworkbook.add_worksheet()
+    for colno in range(len(colname)):
+        pssheet.write(rowno, colno, colname[colno])
+    
+    # inputting data
+    for mbrno in dtset:
+        pttbl.add_row(mbrno)
+        for mbr in mbrno:
+            pssheet.write(dtset.index(mbrno)+1, mbrno.index(mbr), mbr)
+            
+    # printing result
     print(pttbl)
-for w in range(len(colname)):
-    pssheet.set_column(w, w, len(colname[w])+2)
-psworkbook.close()
-asmpn = input('\nPRESS <ENTER> TO EXIT')
+    for w in range(len(colname)):
+        pssheet.set_column(w, w, len(colname[w])+3)
+    psworkbook.close()
+    asmpn = input('\nPRESS <ENTER> TO EXIT')
