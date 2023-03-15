@@ -61,7 +61,7 @@ elif len(root.fn) != 0:
     psworkbook = xw.Workbook('Product Structure for ' + bomdata[0][0][0] + '.xlsx')
     pssheet = psworkbook.add_worksheet()
     for colno in range(len(colname)):
-        pssheet.write(rowno, colno, colname[colno])
+        pssheet.write(0, colno, colname[colno])
     
     # inputting data
     for mbrno in dtset:
