@@ -73,6 +73,6 @@ except:
     for i in range(3):
         print('                                                     ', end='\r')
         t.sleep(0.3)
-        print('YOU MUST LOCATE "alphalist.csv" IN THE SAME FOLDER')
+        print('YOU MUST LOCATE "alphalist.csv" IN THE SAME FOLDER', end='\r')
         t.sleep(0.3)
     t.sleep(5)   
