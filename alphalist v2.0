@@ -1,5 +1,14 @@
+print('JEONGGEOL (JAY) LEE 2023, ALL RIGHTS RESERVED\n')
+
+total = '3'
 import csv
+print('LOADING LIBRARIES 1/%s   ' %(total), end = '\r')
 from prettytable import PrettyTable
+print('LOADING LIBRARIES 2/%s   ' %(total), end = '\r')
+import time as t
+print('LOADING LIBRARIES 3/%s   ' %(total), end = '\r')
+print('                                       ', end = '\r')
+
 
 try:
     #csv file load and turn into a list format
@@ -61,5 +70,9 @@ try:
                 print('+++ NO RESULT +++')
 
 except:
-    # if the progam can't find the file
-    print('YOU MUST LOCATE "alphalist.csv" IN THE SAME FOLDER')
+    for i in range(3):
+        print('                                                     ', end='\r')
+        t.sleep(0.3)
+        print('YOU MUST LOCATE "alphalist.csv" IN THE SAME FOLDER')
+        t.sleep(0.3)
+    t.sleep(5)   
