@@ -1,0 +1,25 @@
+import csv
+import sqlite3 as sql
+import os
+
+with open('part_matchinglist.csv', newline='') as rawdata:
+    pndata = list(csv.reader(rawdata, delimiter=','))
+    rawdata.close()
+    
+    
+conn.close()
+dbname = "imperial2metric.db"
+os.remove(dbname) if os.path.exists(dbname) else ''
+conn = sql.connect("imperial2metric.db")
+cmd = conn.cursor()
+
+columntitle = '('
+for i in pndata[0]:
+    columntitle += str(i) + ', '
+columntitle += 'DATA_CREATOR)'
+cmd.execute('CREATE TABLE db' + columntitle)
+
+for i in pndata[1:]:
+    i.append(str(os.path.join('..','Documents and Settings',os.getlogin(),'Desktop')).split('\\')[2])
+    cmd.execute("INSERT INTO db VALUES(?, ?, ?, ?, ?, ?, ?, ?)", i)
+conn.commit()
