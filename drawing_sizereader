@@ -1,0 +1,18 @@
+print('JEONGGEOL (JAY) LEE 2023, ALL RIGHTS RESERVED')
+
+total = '2'
+print('LOADING LIBRARIES 1/%s   ' %(total), end = '\r')
+import os
+print('LOADING LIBRARIES 2/%s   ' %(total), end = '\r')
+from pypdf import PdfWriter, PdfReader
+print('                                       ', end = '\r')
+
+print('\n* COPY AND PASTE THIS PROGRAM WHERE DRAWINGS ARE')
+print('PART NUMBER - DRAWING SIZE')
+for file in os.listdir():
+    if '.pdf' in file and file[0] in str(list(range(10))):
+        text = PdfReader(file).pages[0].extract_text()
+        for i in range(len(text) - len('REMOVE ALL BURRS')):
+            if 'REMOVE ALL BURRS' in text[i:i+len('REMOVE ALL BURRS')]:
+                print(str(file).split('.pdf')[0], ' - ', text[i-1])
+                break
