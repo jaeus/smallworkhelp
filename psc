@@ -1,17 +1,26 @@
-import csv
-import xlsxwriter as xw
-from tkinter import filedialog, Tk
-import os
-from prettytable import PrettyTable
+print('JEONGGEOL (JAY) LEE 2023, ALL RIGHTS RESERVED')
 
-# tkinter setup
+total = '7'
+print('LOADING LIBRARIES 1/%s   ' %(total), end = '\r')
+import csv
+print('LOADING LIBRARIES 2/%s   ' %(total), end = '\r')
+import xlsxwriter as xw
+print('LOADING LIBRARIES 3/%s   ' %(total), end = '\r')
+from tkinter import filedialog, Tk
+print('LOADING LIBRARIES 4/%s   ' %(total), end = '\r')
+import os
+print('LOADING LIBRARIES 5/%s   ' %(total), end = '\r')
+from prettytable import PrettyTable
+print('LOADING LIBRARIES 6/%s   ' %(total), end = '\r')
 root = Tk()
+print('LOADING LIBRARIES 7/%s   ' %(total), end = '\r')
 root.withdraw()
+print('                                       ', end = '\r')
 
 # loading BOMs
 bomdata = []
-for titletext in ['OLD BOM', 'NEW BOM']:
-    root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT THE ' + titletext))
+for titletext in ['OLD BOM FILE', 'NEW BOM FILE']:
+    root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT ' + titletext))
     if len(root.fn) == 0:
         print('FILE NOT SELECTED')
         break
@@ -58,7 +67,8 @@ elif len(root.fn) != 0:
     colname = ['CODE', ' ', 'OLD PARENT NO.', '  ', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
     pttbl = PrettyTable()
     pttbl.field_names = colname
-    psworkbook = xw.Workbook('Product Structure for ' + bomdata[0][0][0] + '.xlsx')
+    psworkbook = xw.Workbook('Product Structure Update of ' + bomdata[0][0][0] + '_by_'\
+                             + str(os.path.join('..','Documents and Settings',os.getlogin(),'Desktop')).split('\\')[2] + '.xlsx')
     pssheet = psworkbook.add_worksheet()
     for colno in range(len(colname)):
         pssheet.write(0, colno, colname[colno])
@@ -74,4 +84,4 @@ elif len(root.fn) != 0:
     for w in range(len(colname)):
         pssheet.set_column(w, w, len(colname[w])+3)
     psworkbook.close()
-    asmpn = input('\nPRESS <ENTER> TO EXIT')
+asmpn = input('\nPRESS <ENTER> TO EXIT')
