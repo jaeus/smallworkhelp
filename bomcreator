@@ -1,16 +1,27 @@
+print('JEONGGEOL (JAY) LEE 2023, ALL RIGHTS RESERVED')
+
+total = '7'
+print('LOADING LIBRARIES 1/%s   ' %(total), end = '\r')
 import csv
+print('LOADING LIBRARIES 2/%s   ' %(total), end = '\r')
 import xlsxwriter as xw
+print('LOADING LIBRARIES 3/%s   ' %(total), end = '\r')
 from tkinter import filedialog, Tk
+print('LOADING LIBRARIES 4/%s   ' %(total), end = '\r')
 import os
+print('LOADING LIBRARIES 5/%s   ' %(total), end = '\r')
 from prettytable import PrettyTable
-z
-# tkinter setup
+print('LOADING LIBRARIES 6/%s   ' %(total), end = '\r')
 root = Tk()
+print('LOADING LIBRARIES 7/%s   ' %(total), end = '\r')
 root.withdraw()
+print('                                       ', end = '\r')
+
+
 
 # loading BOMs
 bomdata = []
-root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT THE BOM'))
+root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT BOM FILE'))
 
 if len(root.fn) == 0:
     print('FILE NOT SELECTED')
@@ -39,7 +50,8 @@ else:
         colname = ['CODE', ' ', 'OLD PARENT NO.', '  ', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
         pttbl = PrettyTable()
         pttbl.field_names = colname
-        psworkbook = xw.Workbook('Product Structure_' + bomdata[0][0] + '.xlsx')
+        psworkbook = xw.Workbook('Product Structure_' + bomdata[0][0] + '_by_'\
+                                 + str(os.path.join('..','Documents and Settings',os.getlogin(),'Desktop')).split('\\')[2] + '.xlsx')
         pssheet = psworkbook.add_worksheet()
         for colno in range(len(colname)):
             pssheet.write(0, colno, colname[colno])
@@ -63,5 +75,5 @@ else:
     
     else:
         print('THE SELECTED BOM IS NOT IN INITIAL RELEASE STATE.\n' \
-              'IF YOU ARE REVISING ASSEMBLY, USE PRODUCT STRUCTURE UPDATER')
+              'IF YOU ARE REVISING ASSEMBLY, USE [PRODUCT STRUCTURE UPDATER.exe]')
 asmpn = input('\nPRESS <ENTER> TO EXIT')
