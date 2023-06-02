@@ -1,0 +1,66 @@
+print('JEONGGEOL (JAY) LEE 2023, ALL RIGHTS RESERVED')
+
+total = '5'
+print('LOADING LIBRARIES 1/%s   ' %(total), end = '\r')
+import csv
+print('LOADING LIBRARIES 2/%s   ' %(total), end = '\r')
+import os
+print('LOADING LIBRARIES 3/%s   ' %(total), end = '\r')
+from tkinter import filedialog, Tk
+print('LOADING LIBRARIES 4/%s   ' %(total), end = '\r')
+root = Tk()
+print('LOADING LIBRARIES 5/%s   ' %(total), end = '\r')
+root.withdraw()
+print('                                       ', end = '\r')
+
+    
+with open('alphalist.csv', newline='') as rawdata:
+    tempdata = csv.reader(rawdata, delimiter=',')
+    aldata = list(tempdata)
+    rawdata.close()
+    
+while True:
+    trigger = input('PRESS <ENTER> TO LOAD BOM FILE FROM CREO, TYPE "EXIT" TO TERMINATE THE PROGRAM - ').upper()
+    print('\n')
+    if trigger == 'EXIT':
+        break
+    root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT BOM FILE'))
+    if root.fn == '':
+        break
+        
+    with open(root.fn, newline='') as rawdata:
+        tempdata = csv.reader(rawdata, delimiter=' ')
+        bomdata = list(tempdata)
+        rawdata.close()
+    if str(root.fn).split('/')[-1].split('.')[0] in bomdata[2]:
+        # part number retrieving
+        pnlist = []
+        for eachrow in bomdata[3:]:
+            if len(eachrow) == 0:
+                break
+            if 'skel' in eachrow[-1].lower():
+                continue
+            pnlist.append(eachrow[-1])
+        pnlist = sorted(pnlist)
+        for pn in pnlist:
+            result = [pn]
+            for rowno in range(3, 3 + len(pnlist) + 1):
+                if pn == bomdata[rowno][-1]:
+                    for val in bomdata[rowno][:6]:
+                        result.append(val) if len(val) != 0 else''
+                    break
+            result.append(' ')
+            for eachitem in aldata:
+                if pn == eachitem[0]:
+                    result.append(eachitem[4])
+                    result.append(eachitem[3])
+                    result.append(eachitem[1])
+                    break
+            if len(result) == 3:
+                result.append('UNLISTED')
+                result.append(' ')
+                result.append(' ')
+            print('\n%s\t\t\t\t %s\t %s\t %s\t\t\t\t\t %s\n \t%s' \
+                  %(result[0], float(result[1]), result[2], result[3], result[4], result[5]))
+            print('\n------- Next Page on MAPICS-------') if (pnlist.index(pn) + 1) % 7 == 0 else ''
+    print('You have reached the bottom of the list.\n\n')
