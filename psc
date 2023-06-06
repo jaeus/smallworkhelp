@@ -83,4 +83,6 @@ elif len(root.fn) != 0:
     for w in range(len(colname)):
         pssheet.set_column(w, w, len(colname[w])+3)
     psworkbook.close()
+    os.startfile('.\\' + os.getlogin() + '\Product Structure Update of ' + bomdata[0][0][0] + '.xlsx')
+
 asmpn = input('\nPRESS <ENTER> TO EXIT')
