@@ -18,7 +18,6 @@ root.withdraw()
 print('                                       ', end = '\r')
 
 
-
 # loading BOMs
 bomdata = []
 root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT BOM FILE'))
@@ -26,6 +25,7 @@ root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELEC
 if len(root.fn) == 0:
     print('FILE NOT SELECTED')
 else:
+    os.makedirs(os.getlogin()) if not os.path.exists(os.getlogin()) else ''
     with open(root.fn, newline='') as rawdata:
         tempdata = csv.reader(rawdata, delimiter=',')
         bomtemp = list(tempdata)
@@ -50,8 +50,7 @@ else:
         colname = ['CODE', ' ', 'OLD PARENT NO.', '  ', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
         pttbl = PrettyTable()
         pttbl.field_names = colname
-        psworkbook = xw.Workbook('Product Structure_' + bomdata[0][0] + '_by_'\
-                                 + str(os.path.join('..','Documents and Settings',os.getlogin(),'Desktop')).split('\\')[2] + '.xlsx')
+        psworkbook = xw.Workbook('.\\' + os.getlogin() + '\Product Structure_' + bomdata[0][0] + '.xlsx')
         pssheet = psworkbook.add_worksheet()
         for colno in range(len(colname)):
             pssheet.write(0, colno, colname[colno])
@@ -72,8 +71,9 @@ else:
         for w in range(len(colname)):
             pssheet.set_column(w, w, len(colname[w])+3)
         psworkbook.close()
+        os.startfile('.\\' + os.getlogin() + '\Product Structure_' + bomdata[0][0] + '.xlsx')
     
     else:
         print('THE SELECTED BOM IS NOT IN INITIAL RELEASE STATE.\n' \
-              'IF YOU ARE REVISING ASSEMBLY, USE [PRODUCT STRUCTURE UPDATER.exe]')
+              'IF YOU ARE REVISING AN ASSEMBLY, USE [PRODUCT STRUCTURE UPDATER.exe]')
 asmpn = input('\nPRESS <ENTER> TO EXIT')
