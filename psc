@@ -67,8 +67,7 @@ elif len(root.fn) != 0:
     colname = ['CODE', ' ', 'OLD PARENT NO.', '  ', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
     pttbl = PrettyTable()
     pttbl.field_names = colname
-    psworkbook = xw.Workbook('Product Structure Update of ' + bomdata[0][0][0] + '_by_'\
-                             + str(os.path.join('..','Documents and Settings',os.getlogin(),'Desktop')).split('\\')[2] + '.xlsx')
+    psworkbook = xw.Workbook('.\\' + os.getlogin() + '\Product Structure Update of ' + bomdata[0][0][0] + '.xlsx')
     pssheet = psworkbook.add_worksheet()
     for colno in range(len(colname)):
         pssheet.write(0, colno, colname[colno])
