@@ -1,6 +1,6 @@
 print('JEONGGEOL (JAY) LEE 2023, ALL RIGHTS RESERVED')
 
-total = '7'
+total = '8'
 print('LOADING LIBRARIES 1/%s   ' %(total), end = '\r')
 import csv
 print('LOADING LIBRARIES 2/%s   ' %(total), end = '\r')
@@ -15,6 +15,8 @@ print('LOADING LIBRARIES 6/%s   ' %(total), end = '\r')
 root = Tk()
 print('LOADING LIBRARIES 7/%s   ' %(total), end = '\r')
 root.withdraw()
+print('LOADING LIBRARIES 8/%s   ' %(total), end = '\r')
+import getpass
 print('                                       ', end = '\r')
 
 # loading BOMs
@@ -24,6 +26,7 @@ for titletext in ['OLD BOM FILE', 'NEW BOM FILE']:
     if len(root.fn) == 0:
         print('FILE NOT SELECTED')
         break
+    os.makedirs(getpass.getuser()) if not os.path.exists(getpass.getuser()) else ''
     with open(root.fn, newline='') as rawdata:
         tempdata = csv.reader(rawdata, delimiter=',')
         bomtemp = list(tempdata)
@@ -67,7 +70,7 @@ elif len(root.fn) != 0:
     colname = ['CODE', ' ', 'OLD PARENT NO.', '  ', 'PARENT NO.', 'COMPONENT NO.', 'QUANTITY']
     pttbl = PrettyTable()
     pttbl.field_names = colname
-    psworkbook = xw.Workbook('.\\' + os.getlogin() + '\Product Structure Update of ' + bomdata[0][0][0] + '.xlsx')
+    psworkbook = xw.Workbook('.\\' + getpass.getuser() + '\Product Structure Update of ' + bomdata[0][0][0] + '.xlsx')
     pssheet = psworkbook.add_worksheet()
     for colno in range(len(colname)):
         pssheet.write(0, colno, colname[colno])
@@ -83,6 +86,6 @@ elif len(root.fn) != 0:
     for w in range(len(colname)):
         pssheet.set_column(w, w, len(colname[w])+3)
     psworkbook.close()
-    os.startfile('.\\' + os.getlogin() + '\Product Structure Update of ' + bomdata[0][0][0] + '.xlsx')
+    os.startfile('.\\' + getpass.getuser() + '\Product Structure Update of ' + bomdata[0][0][0] + '.xlsx')
 
 asmpn = input('\nPRESS <ENTER> TO EXIT')
