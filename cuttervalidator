@@ -1,0 +1,153 @@
+import pandas as pds
+import numpy as npy
+import matplotlib.pyplot as mpl
+mpl.rcParams['figure.figsize'] = [25, 25]
+mpl.rcParams.update({'font.size': 20})
+import math as m
+import datetime as dt
+import os
+
+def lengthbycoord(func_list1, func_list2):
+    return(round(m.sqrt(pow((func_list2[0] - func_list1[0]), 2) + pow((func_list2[1] - func_list1[1]), 2)), 5))
+
+def anglecalculator(func_lengA, func_lengB, func_lengC):
+    func_result = (pow(func_lengB, 2) + pow(func_lengC, 2) - pow(func_lengA, 2)) / (2 * func_lengB * func_lengC)
+    if func_result <= 1 and func_result >= -1:
+        return(round(m.degrees(m.acos(func_result)), 3))
+    else:
+        if func_result < -1:
+            return(round(m.degrees(m.acos(-(func_result + 2))), 3))
+        else:
+            return(round(m.degrees(m.acos(-(func_result - 2))), 3))
+    
+    # old
+#     return(round(m.degrees(m.acos((pow(func_lengB, 2) + pow(func_lengC, 2) - pow(func_lengA, 2)) /\
+#                                   (2 * func_lengB * func_lengC))), 3))
+
+def initialdegree(func_x, func_length):
+    return(m.degrees(m.acos(func_x / func_length)))
+
+def ru(func_value):
+    return(round(func_value, 3))
+
+################################################################################################################
+# origin: pivot point, coordinate
+# coord_piston: position coordinate of piston, retract to extend
+# dist_pistontolh: length of piston link
+# dia_cyl: cylinder inner diameter
+# coord_linkhole: linkhole coordinate
+# dist_origintolh: distance between the linkhole to origin
+# radi_blade: blade inner radius
+# coord_bladectr: center coordinate of blade inner radius
+# deg_bladerange: degree range for searching proper points to meet the minimum opening distance
+# crossoveramnt: required cross-over distance when the blades are fully closed, unit is mm
+# dist_bladectr = distnace between the blade radius center to origin
+# coord_bladeend_init: coordinate of the endpoint of blade to track the opening distance
+# crossover_check: to check if crossover distance meets the minimum requirement
+
+# NO CHANGE VALUES UNLESS MODIFY THE CYLINDER & STROKE
+origin = [0, 0]
+stroke = 6.289 - 1
+coord_piston = [[0, -9.387]]
+coord_piston.append([0, round(coord_piston[0][1] + stroke, 3)])
+
+# PARAMETERS
+pistonmoveterm = 100 # divided by 1000, smaller number gets precised result, takes more time
+coord_piston[1][1] += pistonmoveterm / 1000 # compensation for the loss of distance when extending
+pistres = 1000 # resolution for for loop
+pistonmoverange = [int(coord_piston[0][1] * pistres), int(coord_piston[1][1] * pistres)]
+pressure = 2000
+dia_cyl = 2
+dcml = 3 # round digits unless specified
+
+
+# [linklength, x_linkhole, y_linkhole, blade_radius, x_blade_ctr, y_blade_cty, opendegree]
+datalist = []
+
+# OPENING 7" - 1 
+dataset = [5.5, -1.4235047480638632, -4.074407955410128, 4.1, 0.09999999, 4.85, 108, '7.6" ORG']
+datalist.append(dataset)
+
+tol = 0.005
+gdnt = 0.005 / 2
+for x in [-tol - gdnt, 0, tol + gdnt]:
+    for y in [0]:
+#     for y in [-tol - gdnt, 0, tol + gdnt]:
+        for dataset in datalist:
+            dist_pistontolh = dataset[0] + x # length of piston link
+            coord_linkhole = [dataset[1], dataset[2]] # coordinate from origin to linkhole, values from the drawing
+            dist_origintolh = lengthbycoord(coord_linkhole, origin) # length of blade link
+            deg_alpharange = [anglecalculator(dist_pistontolh, dist_origintolh, abs(coord_piston[0][1])),
+                              anglecalculator(dist_pistontolh, dist_origintolh, abs(coord_piston[1][1]))]
+            bladerad = dataset[3]
+            coord_bladectr = [dataset[4], dataset[5]]
+
+            deg_bladeend = dataset[6] # current blade's endpoint
+            deg_bladerange = [105, deg_bladeend + 20]
+
+            title = dataset[7]
+
+
+
+            colname = ['PISTON_POS', 'DIST_LINK', 'X_LINK_ORG', 'Y_LINK_ORG', 'BLADE_RADIUS', 'X_BLADE_CTR_ORG', 'Y_BLADE_CTR_ORG', 'X_BLADE_CTR', 'Y_BLADE_CTR',
+                       'ANG_BLADE_ENDPOINT', 'DIST_CROSSOVER', 'DEG_ALPHA', 'DEG_BETA', 'DEG_GAMMA', 'DEG_DELTA', 'DEG_THETA',
+                       'DIST_INSIDE', 'TORQUE', 'FORCE_CUTTING']
+            foldername = 'FINAL'
+            os.makedirs(foldername) if not os.path.exists(foldername) else ''
+
+            # current blade's cutting force
+            dataset = pds.DataFrame(columns = colname)
+            for pistonposition in range(pistonmoverange[0], pistonmoverange[1], pistonmoveterm):
+                deg_alpha = anglecalculator(dist_pistontolh, dist_origintolh, abs(pistonposition/1000))
+                deg_beta = anglecalculator(dist_origintolh, dist_pistontolh, abs(pistonposition/1000))
+                deg_gamma = anglecalculator(abs(pistonposition/1000), dist_origintolh, dist_pistontolh)
+                dist_bladectr = lengthbycoord(coord_bladectr, origin)
+                deg_zeta_init = initialdegree(coord_bladectr[0], dist_bladectr)
+                crossover_check = (dist_bladectr * m.cos(m.radians(deg_zeta_init - \
+                                                                   (deg_alpharange[1] - deg_alpharange[0])))) - bladerad
+                # every point on the blade from 0 to deg_bladerange[1]
+                torque = round((pressure * (pow(dia_cyl, 2) * m.pi) / 4 / 2)\
+                * m.cos(m.radians(deg_beta)) * m.cos(m.radians(deg_gamma - 90)) * dist_origintolh, dcml)
+                deg_zeta = deg_zeta_init - (deg_alpha - deg_alpharange[0])
+                coord_bladectr_bystroke = [dist_bladectr * m.cos(m.radians(deg_zeta)),
+                                           dist_bladectr * m.sin(m.radians(deg_zeta))]
+
+                deg_delta = 90
+                coord_bladecontact = [coord_bladectr_bystroke[0] - bladerad * m.sin(m.radians(deg_delta)),
+                                      coord_bladectr_bystroke[1] - bladerad * m.cos(m.radians(deg_delta))]
+                dist_bladecontact = lengthbycoord(coord_bladecontact, origin)
+
+                deg_theta = anglecalculator(dist_bladectr, bladerad, dist_bladecontact)
+                force_cutting = m.cos(m.radians(90 - deg_theta)) * torque / dist_bladecontact
+
+                dataset.loc[len(dataset)] = [ru(pistonposition/1000), ru(dist_pistontolh), ru(coord_linkhole[0]), ru(coord_linkhole[1]),
+                                             ru(bladerad), ru(coord_bladectr[0]), ru(coord_bladectr[1]), ru(coord_bladectr_bystroke[0]),
+                                             ru(coord_bladectr_bystroke[1]), ru(deg_bladeend), ru(crossover_check), ru(deg_alpha),
+                                             ru(deg_beta), ru(deg_gamma), ru(deg_delta), ru(deg_theta), ru(2 * coord_bladecontact[0]),
+                                             ru(torque), ru(force_cutting)]
+
+            print('\nDATASET AT OPENING DISTANCE, New Blade Design, LINK POS. TOL. at X=' + str(x) + ', Y=' + str(y))
+            display(dataset[['PISTON_POS', 'DIST_INSIDE', 'FORCE_CUTTING']][(dataset['DIST_INSIDE'] > -3.5) & \
+                                                                            (dataset['DIST_INSIDE'] < -2.5)])
+#             for i in dataset['ANG_BLADE_ENDPOINT'].value_counts().index.to_list():
+#                 for j in dataset['Y_BLADE_CTR_ORG'].value_counts().index.to_list():
+#                     newdataset = dataset[(dataset['DEG_DELTA'] == 90) & \
+#                                          (dataset['ANG_BLADE_ENDPOINT'] == i) & \
+#                                          (dataset['Y_BLADE_CTR_ORG'] == j)].reset_index(drop=True)
+
+#                     x1 = sorted((newdataset['DIST_INSIDE']).value_counts().index.astype(float).to_list())
+#                     x2 = sorted((newdataset['PISTON_POS'] + 4.087).value_counts().index.astype(float).to_list())
+
+#                     fig,ax = mpl.subplots(figsize=(25,25))
+#                     mpl.plot(x1, newdataset['FORCE_CUTTING'], label='Blade Inner Distance')
+#                     mpl.plot(x2, newdataset['FORCE_CUTTING'], label='Piston Stroke')    
+#                     mpl.title("Cutting Force by Blade Inner Distance, New Blade Design, LINK POS. TOL. at" + \
+#                               str(dataset['BLADE_RADIUS'].value_counts().index[0]) + \
+#                               ", X=" + str(x) + ", Y=" + str(y), fontsize=30)
+#                     mpl.xlabel('Distance, inch', fontsize=25)
+#                     mpl.ylabel('Cutting Force, lbf', fontsize=25)
+#                     mpl.legend()
+#                     mpl.xticks(fontsize=20)
+#                     mpl.yticks(fontsize=20)
+#                     # mpl.savefig('./HOCK CUTTER/newblade.png', dpi=600)
+#                     mpl.show()
