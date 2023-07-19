@@ -1,0 +1,63 @@
+import csv
+from tkinter import filedialog, Tk
+import os
+import time as t
+from prettytable import PrettyTable
+
+root = Tk()
+root.withdraw()
+
+
+assybomlist = []
+result = ['Part_No.']
+no = 1
+while True:
+    if no % 10 == 1 and no != 11:
+        end = 'ST'
+    elif no % 10 == 2 and no != 12:
+        end = 'ND'
+    elif no % 10 == 3 and no != 13:
+        end = 'RD'
+    else:
+        end = 'TH'
+    root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT ' + str(no) + end + ' BOM'))
+    if root.fn == '':
+        break
+    if '.csv' not in str(root.fn):
+        print('CSV FILE ONLY (%s IS NOT IN CSV FORMAT)' %(root.fn.split('/')[-1]))
+        continue
+    with open(root.fn, newline='') as rawdata:
+        tempdata = csv.reader(rawdata, delimiter=',')
+        bomtemp = list(tempdata)
+        rawdata.close()
+    if len(bomtemp) >= 2 and (len(bomtemp[1][1]) == 11 or len(bomtemp[1][1]) == 14) and '.asm' in bomtemp[1][1]:
+        assybomlist.append(bomtemp)
+        result.append(bomtemp[1][1].split('.')[0])
+        no += 1
+    else:
+        print('PROPER BOM STRUCTURE ONLY (%s IS NOT A BOM FILE)' %(root.fn.split('/')[-1]))
+
+result = [result]
+allpnlist = []
+for eachbom in assybomlist:
+    for eachrow in eachbom:
+        if eachrow[0] == str(1) and 'skel' not in eachrow[1].lower():
+            allpnlist.append(eachrow[1].split('.')[0]) if eachrow[1].split('.')[0] not in allpnlist else ''
+allpnlist = sorted(allpnlist)
+            
+for pn in allpnlist:
+    qtydata = [pn]
+    for eachbom in assybomlist:
+        for eachrow in eachbom[2:]:
+            if eachrow[0] == str(1) and pn in eachrow[1]:
+                qtydata.append(int(eachrow[3]))
+                break
+        if len(qtydata) == assybomlist.index(eachbom) + 1:
+            qtydata.append(0)
+    result.append(qtydata)
+
+pttbl = PrettyTable()
+pttbl.field_names = result[0]
+for no in range(len(allpnlist)):
+    allpnlist[no] = [allpnlist[no]]
+print(pttbl)
