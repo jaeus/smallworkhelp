@@ -1,63 +1,113 @@
+print('JEONGGEOL (JAY) LEE 2023, ALL RIGHTS RESERVED')
+
+total = '11'
+print('LOADING LIBRARIES 1/%s   ' %(total), end = '\r')
 import csv
-from tkinter import filedialog, Tk
+print('LOADING LIBRARIES 2/%s   ' %(total), end = '\r')
+import tkinter as tk
+print('LOADING LIBRARIES 3/%s   ' %(total), end = '\r')
+import tkinter.filedialog
+print('LOADING LIBRARIES 4/%s   ' %(total), end = '\r')
+import datetime as dt
+print('LOADING LIBRARIES 5/%s   ' %(total), end = '\r')
+import xlsxwriter as xw
+print('LOADING LIBRARIES 6/%s   ' %(total), end = '\r')
 import os
-import time as t
+print('LOADING LIBRARIES 7/%s   ' %(total), end = '\r')
+import getpass
+print('LOADING LIBRARIES 8/%s   ' %(total), end = '\r')
 from prettytable import PrettyTable
-
-root = Tk()
+print('LOADING LIBRARIES 9/%s   ' %(total), end = '\r')
+import sqlite3 as sql
+print('LOADING LIBRARIES 10/%s   ' %(total), end = '\r')
+root = tk.Tk()
+print('LOADING LIBRARIES 11/%s   ' %(total), end = '\r')
 root.withdraw()
+print('                                       \n', end = '\r')
+
+cmd = sql.connect("usrlst.db").cursor()
+dblist = cmd.execute("SELECT * FROM usrlist").fetchall()
+usrlist = [list(value) for value in dblist]
+usrlist = list(zip(*usrlist))
+sql.connect("usrlst.db").close()
 
 
-assybomlist = []
-result = ['Part_No.']
-no = 1
-while True:
-    if no % 10 == 1 and no != 11:
-        end = 'ST'
-    elif no % 10 == 2 and no != 12:
-        end = 'ND'
-    elif no % 10 == 3 and no != 13:
-        end = 'RD'
+if str(getpass.getuser()).lower() in usrlist[0]:
+    if usrlist[1][usrlist[0].index(str(getpass.getuser()).lower())] == 'R':
+        input('YOU ARE NOT ALLOWED TO USE THIS PROGRAM AND WILL NEVER BE                                    ')
     else:
-        end = 'TH'
-    root.fn = filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT ' + str(no) + end + ' BOM'))
-    if root.fn == '':
-        break
-    if '.csv' not in str(root.fn):
-        print('CSV FILE ONLY (%s IS NOT IN CSV FORMAT)' %(root.fn.split('/')[-1]))
-        continue
-    with open(root.fn, newline='') as rawdata:
-        tempdata = csv.reader(rawdata, delimiter=',')
-        bomtemp = list(tempdata)
-        rawdata.close()
-    if len(bomtemp) >= 2 and (len(bomtemp[1][1]) == 11 or len(bomtemp[1][1]) == 14) and '.asm' in bomtemp[1][1]:
-        assybomlist.append(bomtemp)
-        result.append(bomtemp[1][1].split('.')[0])
-        no += 1
-    else:
-        print('PROPER BOM STRUCTURE ONLY (%s IS NOT A BOM FILE)' %(root.fn.split('/')[-1]))
-
-result = [result]
-allpnlist = []
-for eachbom in assybomlist:
-    for eachrow in eachbom:
-        if eachrow[0] == str(1) and 'skel' not in eachrow[1].lower():
-            allpnlist.append(eachrow[1].split('.')[0]) if eachrow[1].split('.')[0] not in allpnlist else ''
-allpnlist = sorted(allpnlist)
-            
-for pn in allpnlist:
-    qtydata = [pn]
-    for eachbom in assybomlist:
-        for eachrow in eachbom[2:]:
-            if eachrow[0] == str(1) and pn in eachrow[1]:
-                qtydata.append(int(eachrow[3]))
+        assybomlist = []
+        result = ['Part_No.']
+        no = 1
+        while True:
+            if no % 10 == 1 and no != 11:
+                end = 'ST'
+            elif no % 10 == 2 and no != 12:
+                end = 'ND'
+            elif no % 10 == 3 and no != 13:
+                end = 'RD'
+            else:
+                end = 'TH'
+            root.fn = tkinter.filedialog.askopenfilename(initialdir = (os.getcwd()), title = ('SELECT ' + str(no) + end + ' BOM'))
+            if root.fn == '':
                 break
-        if len(qtydata) == assybomlist.index(eachbom) + 1:
-            qtydata.append(0)
-    result.append(qtydata)
+            if '.csv' not in str(root.fn):
+                tk.messagebox.showwarning(title='CSV FILE ONLY', message='[%s]\n is not in CSV format' %(root.fn.split('/')[-1]))
+                continue
+            with open(root.fn, newline='') as rawdata:
+                tempdata = csv.reader(rawdata, delimiter=',')
+                bomtemp = list(tempdata)
+                rawdata.close()
+            if len(bomtemp) >= 2 and (len(bomtemp[1][1]) == 11 or len(bomtemp[1][1]) == 14) and '.asm' in bomtemp[1][1]:
+                if bomtemp[1][1].split('.')[0] + ' (' + bomtemp[1][2] + ')' in result:
+                    tk.messagebox.showwarning(title='SAME FILE SELECTED', message='[%s]\n is already loaded' %(root.fn.split('/')[-1]))
+                    continue
+                assybomlist.append(bomtemp)
+                result.append(bomtemp[1][1].split('.')[0] + ' (' + bomtemp[1][2] + ')')
+                no += 1
+            else:
+                tk.messagebox.showwarning(title='NON-BOM FILE', message='[%s]\n is not in BOM structure' %(root.fn.split('/')[-1]))
 
-pttbl = PrettyTable()
-pttbl.field_names = result[0]
-for no in range(len(allpnlist)):
-    allpnlist[no] = [allpnlist[no]]
-print(pttbl)
+        if len(assybomlist) == 0:
+            print('NOTHING SELECTED')
+        else:
+            result = [result]
+            allpnlist = []
+            for eachbom in assybomlist:
+                for eachrow in eachbom:
+                    if eachrow[0] == str(1) and 'skel' not in eachrow[1].lower():
+                        allpnlist.append(eachrow[1].split('.')[0]) if eachrow[1].split('.')[0] not in allpnlist else ''
+            allpnlist = sorted(allpnlist)
+
+            for pn in allpnlist:
+                qtydata = [pn]
+                for eachbom in assybomlist:
+                    for eachrow in eachbom[2:]:
+                        if eachrow[0] == str(1) and pn in eachrow[1]:
+                            qtydata.append(int(eachrow[3]))
+                            break
+                    if len(qtydata) == assybomlist.index(eachbom) + 1:
+                        qtydata.append('-')
+                result.append(qtydata)
+
+            pttbl = PrettyTable()
+            pttbl.field_names = result[0]
+            ctime = dt.datetime.today().strftime('%y%m%d_%H%M%S')
+            psworkbook = xw.Workbook('.//' + getpass.getuser() + '/' + str(len(assybomlist)) + ' BOM COMPARE RESULT_' + ctime + '.xlsx')
+            pssheet = psworkbook.add_worksheet()
+            for colno in range(len(result[0])):
+                pssheet.write(0, colno, result[0][colno])
+            for eachrow in result[1:]:
+                pttbl.add_row(eachrow)
+                for no in range(len(eachrow)):
+                    pssheet.write(result.index(eachrow), no, eachrow[no])
+            print(pttbl)
+            for w in range(len(result[0])):
+                pssheet.set_column(w, w, len(result[0][w])+3)
+            psworkbook.close()
+            os.startfile('.\\%s\%s' %(getpass.getuser(), str(len(assybomlist)) + ' BOM COMPARE RESULT_' + ctime + '.xlsx'))    
+            
+        print('RESULT SAVED IN %s FOLDER\n' %(getpass.getuser()))
+        result = input('PRESS <ENTER> TO EXIT')
+else:
+    input('SORRY, YOUR NAME IS NOT ON THE USER LIST. PRESS <ENTER> TO EXIT THE PROGRAM                   ')
